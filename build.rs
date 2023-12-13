@@ -16,7 +16,11 @@ fn main() {
 		.build();
 
 	println!("cargo:rustc-link-search=native={}/lib", p.display());
-	println!("cargo:rustc-link-lib=static=tidy_static");
+	if cfg!(windows) {
+		println!("cargo:rustc-link-lib=static=tidy_static");
+	} else {
+		println!("cargo:rustc-link-lib=static=tidy");
+	}
 
 	// Generate bindings
 	// let header = p.join("include/tidy.h");
