@@ -3,6 +3,52 @@ use std::{
 	path::PathBuf,
 };
 
+use bindgen::callbacks::{
+	EnumVariantValue,
+	ParseCallbacks,
+};
+
+const ENUMS: &[(&str, &str)] = &[
+	("TidyAttrId", "TidyAttr_"),
+	("TidyAttrSortStrategy", "TidySortAttr"),
+	("TidyConfigCategory", "Tidy"),
+	("TidyDoctypeModes", "TidyDoctype"),
+	("TidyDupAttrModes", "Tidy"),
+	("TidyEncodingOptions", "TidyEnc"),
+	("TidyFormatParameterType", "tidyFormatType_"),
+	("TidyLineEnding", "Tidy"),
+	("TidyNodeType", "TidyNode_"),
+	("TidyOptionId", "Tidy"),
+	("TidyOptionType", "Tidy"),
+	("TidyReportLevel", "Tidy"),
+	("tidyStrings", "-"),
+	("TidyTagId", "TidyTag_"),
+	("TidyTriState", "Tidy"),
+	("TidyUppercase", "TidyUppercase"),
+	("TidyUseCustomTagsState", "TidyCustom"),
+];
+
+#[derive(Debug)]
+struct ParseCallback;
+
+impl ParseCallbacks for ParseCallback {
+	fn enum_variant_name(
+		&self,
+		enum_name: Option<&str>,
+		variant: &str,
+		_val: EnumVariantValue,
+	) -> Option<String> {
+		let enum_name = enum_name?;
+		for &(name, prefix) in ENUMS {
+			if name == enum_name {
+				return variant.strip_prefix(prefix).map(str::to_string);
+			}
+		}
+
+		None
+	}
+}
+
 fn main() {
 	println!("cargo:rerun-if-changed=vendor/");
 	for env in ["CMAKE_GENERATOR", "CC"] {
@@ -24,13 +70,19 @@ fn main() {
 
 	// Generate bindings
 	// let header = p.join("include/tidy.h");
-	let bindings = bindgen::Builder::default()
+	let mut builder = bindgen::Builder::default()
 		.clang_arg(format!("-I{}/include", p.display()))
 		.header_contents("wrapper.h", r#"#include "tidy.h""#)
 		.parse_callbacks(Box::new(bindgen::CargoCallbacks::new()))
+		.parse_callbacks(Box::new(ParseCallback))
 		.allowlist_file(r".*[/\\]tidy.*")
-		.generate()
-		.expect("failed to generate bindings");
+		.enable_function_attribute_detection();
+
+	for (name, _) in ENUMS {
+		builder = builder.rustified_enum(*name);
+	}
+
+	let bindings = builder.generate().expect("failed to generate bindings");
 
 	let out_path = PathBuf::from(env::var("OUT_DIR").unwrap());
 	bindings
