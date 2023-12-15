@@ -1,13 +1,18 @@
 [package]
 name = "tidy-sys"
 description = "Raw FFI bindings to the Tidy C library"
-version = "0.2.0"
+version = "0.3.0"
 homepage = "https://github.com/insomnimus/tidy-sys"
 repository = "https://github.com/insomnimus/tidy-sys"
 edition = "2021"
 license = "MIT"
 keywords = ["html", "html-formatter", "tidy"]
 categories = ["external-ffi-bindings"]
+
+[features]
+default = []
+# Enable multilanguage support
+localization = []
 
 [dependencies]
 

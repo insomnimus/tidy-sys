@@ -18,3 +18,7 @@ Some external tools are required:
 If you get errors during the install step with cmake and you're on Windows:
 - Use a different CMake generator by setting the `CMAKE_GENERATOR` env variable; I've not had good luck with MSBuild on my machine. Ninja works fine.
 - Clear CC/CXX environment variables.
+
+##Crate Features
+Currently there's only one feature, by default disabled:
+- `localization`: Enable multi-language support in Tidy (sets the `SUPPORT_LOCALIZATIONS` option to `on` with CMake).

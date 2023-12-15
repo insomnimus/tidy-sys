@@ -50,6 +50,11 @@ impl ParseCallbacks for ParseCallback {
 }
 
 fn main() {
+	let localization = if cfg!(feature = "localization") {
+		"on"
+	} else {
+		"off"
+	};
 	println!("cargo:rerun-if-changed=vendor/");
 	for env in ["CMAKE_GENERATOR", "CC"] {
 		println!("cargo:rerun-if-env-changed={env}");
@@ -59,6 +64,9 @@ fn main() {
 		.profile("release")
 		.cflag("-O2")
 		.cxxflag("-O2")
+		.configure_arg("-DBUILD_SHARED_LIB=off")
+		.configure_arg("-DSUPPORT_CONSOLE_APP=off")
+		.define("SUPPORT_LOCALIZATIONS", localization)
 		.build();
 
 	println!("cargo:rustc-link-search=native={}/lib", p.display());
