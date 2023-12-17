@@ -1,6 +1,10 @@
 # tidy-sys
 Rust bindings for the [HTML Tidy](https://github.com/htacg/tidy-html5) library.
 
+## Documentation
+- [tidy-sys](https://docs.rs/tidy-sys/latest/tidy_sys/)
+- [libtidy](https://www.html-tidy.org/developer/)
+
 ## Note About Vendored Dependencies
 The source code for Tidy is vendored in this repository for ease of use, under the `vendor/` directory.
 Otherwise this is an unassociated project.
