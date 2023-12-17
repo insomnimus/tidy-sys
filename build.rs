@@ -84,7 +84,6 @@ fn main() {
 		.profile("Release")
 		.cflag("-O2")
 		.cflag("-DNDEBUG")
-		.build_target("Install")
 		.build();
 
 	println!("cargo:rustc-link-search=native={}/lib", p.display());
