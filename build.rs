@@ -28,6 +28,14 @@ const ENUMS: &[(&str, &str)] = &[
 	("TidyUseCustomTagsState", "TidyCustom"),
 ];
 
+const fn onoff(on: bool) -> &'static str {
+	if on {
+		"on"
+	} else {
+		"off"
+	}
+}
+
 #[derive(Debug)]
 struct ParseCallback;
 
@@ -49,24 +57,34 @@ impl ParseCallbacks for ParseCallback {
 	}
 }
 
+const CMAKE_DEFINES: &[(&str, &str)] = &[
+	("ENABLE_MEMORY_DEBUG", "off"),
+	("ENABLE_DEBUG_LOG", "off"),
+	("ENABLE_CRTDBG_MEMORY", "off"),
+	("ENABLE_ALLOC_DEBUG", "off"),
+	("BUILD_SHARED_LIB", "off"),
+	("SUPPORT_CONSOLE_APP", "off"),
+	(
+		"SUPPORT_LOCALIZATIONS",
+		onoff(cfg!(feature = "localization")),
+	),
+];
+
 fn main() {
-	let localization = if cfg!(feature = "localization") {
-		"on"
-	} else {
-		"off"
-	};
 	println!("cargo:rerun-if-changed=vendor/");
 	for env in ["CMAKE_GENERATOR", "CC"] {
 		println!("cargo:rerun-if-env-changed={env}");
 	}
 
-	let p = cmake::Config::new("vendor/tidy.5.8.0")
-		.profile("release")
+	let mut cmake = cmake::Config::new("vendor/tidy.5.8.0");
+	for (k, v) in CMAKE_DEFINES {
+		cmake.define(k, v);
+	}
+	let p = cmake
+		.profile("Release")
 		.cflag("-O2")
-		.cxxflag("-O2")
-		.configure_arg("-DBUILD_SHARED_LIB=off")
-		.configure_arg("-DSUPPORT_CONSOLE_APP=off")
-		.define("SUPPORT_LOCALIZATIONS", localization)
+		.cflag("-DNDEBUG")
+		.build_target("Install")
 		.build();
 
 	println!("cargo:rustc-link-search=native={}/lib", p.display());
@@ -77,7 +95,6 @@ fn main() {
 	}
 
 	// Generate bindings
-	// let header = p.join("include/tidy.h");
 	let mut builder = bindgen::Builder::default()
 		.clang_arg(format!("-I{}/include", p.display()))
 		.header_contents("wrapper.h", r#"#include "tidy.h""#)

@@ -7,3 +7,7 @@
 #![doc = include_str!("../readme.md")]
 
 include!(concat!(env!("OUT_DIR"), "/bindings.rs",));
+
+pub const NoState: ulong = TidyTriState::NoState as ulong;
+pub const YesState: ulong = TidyTriState::YesState as ulong;
+pub const AutoState: ulong = TidyTriState::AutoState as ulong;
