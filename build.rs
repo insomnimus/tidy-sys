@@ -28,6 +28,13 @@ const ENUMS: &[(&str, &str)] = &[
 	("TidyUseCustomTagsState", "TidyCustom"),
 ];
 
+const HEADER: &str = r#"
+#include "tidy.h"
+#include "tidybuffio.h"
+#include "tidyplatform.h"
+#include "tidyenum.h"
+"#;
+
 const fn onoff(on: bool) -> &'static str {
 	if on {
 		"on"
@@ -96,7 +103,8 @@ fn main() {
 	// Generate bindings
 	let mut builder = bindgen::Builder::default()
 		.clang_arg(format!("-I{}/include", p.display()))
-		.header_contents("wrapper.h", r#"#include "tidy.h""#)
+		.header_contents("wrapper.h", HEADER)
+		.no_default("_?TidyDoc")
 		.parse_callbacks(Box::new(bindgen::CargoCallbacks::new()))
 		.parse_callbacks(Box::new(ParseCallback))
 		.allowlist_file(r".*[/\\]tidy.*")
