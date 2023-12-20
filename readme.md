@@ -18,6 +18,12 @@ Some external tools are required:
 - A C compiler (to compile Tidy)
 - Clang (as [bindgen](https://github.com/htacg/tidy-html5) needs it)
 
+## The Default Build Configuration
+Tidy will be built with:
+- `-DNDEBUG`, regardless of the rust profile (not setting it causes Tidy to debug-log to stderr uncontrollably)
+- CMake profile always set to `Release` as other values cause problems with Visual Studio generators
+- Optimization level matching the rust build's opt-level (overwritten with `CFLAGS` and `TIDY_SYS_CFLAGS`)
+
 ## Setting Build Options
 This crate respects the standard environment variables used by C compilers and related tools, such as `CC`, `CFLAGS`, `LD` and etc.
 

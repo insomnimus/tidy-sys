@@ -79,6 +79,21 @@ const CMAKE_DEFINES: &[(&str, &str)] = &[
 
 fn main() {
 	let profile = env::var("PROFILE").unwrap();
+	let opt_level = env::var("OPT_LEVEL")
+		.ok()
+		.filter(|s| s.len() == 1 && "0123szg".contains(s))
+		.unwrap_or_else(|| {
+			String::from(match profile.as_str() {
+				"release" | "bench" => "2",
+				"debug" => "0",
+				_ => {
+					eprintln!("warning: unrecognized cargo profile {profile}; using opt-level 2");
+					"2"
+				}
+			})
+		});
+	let opt_flag = format!("-O{opt_level}");
+
 	println!("cargo:rerun-if-changed=vendor/");
 
 	for env in ["CMAKE_GENERATOR", "CC", "TIDY_SYS_CFLAGS", "CFLAGS"] {
@@ -92,14 +107,7 @@ fn main() {
 
 	cmake
 		.profile("Release") // Not setting this causes problems with msbuild
-			.cflag(match profile.as_str() {
-				"debug" => "-O0",
-				"release" | "bench" => "-O2",
-				_ => {
-					eprintln!("warning: unknown rust profile {profile}; building Tidy with -O2 (optimized)");
-					"-O2"
-				}
-			})
+			.cflag(opt_flag)
 			.cflag("-DNDEBUG");
 
 	if let Ok(flags) = env::var("TIDY_SYS_CFLAGS") {
