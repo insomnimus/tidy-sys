@@ -18,10 +18,10 @@ Some external tools are required:
 - A C compiler (to compile Tidy)
 - Clang (as [bindgen](https://github.com/htacg/tidy-html5) needs it)
 
-## Troubleshooting
-If you get errors during the install step with cmake and you're on Windows:
-- Use a different CMake generator by setting the `CMAKE_GENERATOR` env variable; I've not had good luck with MSBuild on my machine. Ninja works fine.
-- Clear CC/CXX environment variables.
+## Setting Build Options
+This crate respects the standard environment variables used by C compilers and related tools, such as `CC`, `CFLAGS`, `LD` and etc.
+
+In addition, you can set the `TIDY_SYS_CFLAGS` environment variable; the values will be appended to `CFLAGS` while building Tidy.
 
 ## Crate Features
 Currently there's only one feature, by default disabled:

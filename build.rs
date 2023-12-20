@@ -78,8 +78,10 @@ const CMAKE_DEFINES: &[(&str, &str)] = &[
 ];
 
 fn main() {
+	let profile = env::var("PROFILE").unwrap();
 	println!("cargo:rerun-if-changed=vendor/");
-	for env in ["CMAKE_GENERATOR", "CC"] {
+
+	for env in ["CMAKE_GENERATOR", "CC", "TIDY_SYS_CFLAGS", "CFLAGS"] {
 		println!("cargo:rerun-if-env-changed={env}");
 	}
 
@@ -87,11 +89,27 @@ fn main() {
 	for (k, v) in CMAKE_DEFINES {
 		cmake.define(k, v);
 	}
-	let p = cmake
-		.profile("Release")
-		.cflag("-O2")
-		.cflag("-DNDEBUG")
-		.build();
+
+	cmake
+		.profile("Release") // Not setting this causes problems with msbuild
+			.cflag(match profile.as_str() {
+				"debug" => "-O0",
+				"release" | "bench" => "-O2",
+				_ => {
+					eprintln!("warning: unknown rust profile {profile}; building Tidy with -O2 (optimized)");
+					"-O2"
+				}
+			})
+			.cflag("-DNDEBUG");
+
+	if let Ok(flags) = env::var("TIDY_SYS_CFLAGS") {
+		eprintln!("info: using CFLAGS from the TIDY_SYS_CFLAGS environment variable with the value: {flags}");
+		for s in flags.split_whitespace() {
+			cmake.cflag(s);
+		}
+	}
+
+	let p = cmake.build();
 
 	println!("cargo:rustc-link-search=native={}/lib", p.display());
 	if cfg!(windows) {
