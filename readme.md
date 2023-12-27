@@ -25,7 +25,7 @@ Tidy will be built with:
 - Optimization level matching the rust build's opt-level (overwritten with `CFLAGS` and `TIDY_SYS_CFLAGS`)
 
 ## Setting Build Options
-This crate respects the standard environment variables used by C compilers and related tools, such as `CC`, `CFLAGS`, `LD` and etc.
+This crate respects the standard environment variables used by C compilers and related tools, such as `CC`, `CFLAGS`, `LD` etc.
 
 In addition, you can set the `TIDY_SYS_CFLAGS` environment variable; the values will be appended to `CFLAGS` while building Tidy.
 
