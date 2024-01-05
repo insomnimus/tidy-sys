@@ -120,7 +120,7 @@ fn main() {
 	let p = cmake.build();
 
 	println!("cargo:rustc-link-search=native={}/lib", p.display());
-	if cfg!(windows) {
+	if env::var_os("CARGO_CFG_WINDOWS").is_some() {
 		println!("cargo:rustc-link-lib=static=tidy_static");
 	} else {
 		println!("cargo:rustc-link-lib=static=tidy");
