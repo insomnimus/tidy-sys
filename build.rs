@@ -37,9 +37,9 @@ const HEADER: &str = r#"
 
 const fn onoff(on: bool) -> &'static str {
 	if on {
-		"on"
+		"ON"
 	} else {
-		"off"
+		"OFF"
 	}
 }
 
@@ -64,20 +64,20 @@ impl ParseCallbacks for ParseCallback {
 	}
 }
 
-const CMAKE_DEFINES: &[(&str, &str)] = &[
-	("ENABLE_MEMORY_DEBUG", "off"),
-	("ENABLE_DEBUG_LOG", "off"),
-	("ENABLE_CRTDBG_MEMORY", "off"),
-	("ENABLE_ALLOC_DEBUG", "off"),
-	("BUILD_SHARED_LIB", "off"),
-	("SUPPORT_CONSOLE_APP", "off"),
-	(
-		"SUPPORT_LOCALIZATIONS",
-		onoff(cfg!(feature = "localization")),
-	),
-];
+fn is_feature(s: &str) -> bool {
+	env::var(format!("CARGO_FEATURE_{}", s.to_uppercase())).is_ok()
+}
 
 fn main() {
+	let cmake_defines = &[
+		("ENABLE_MEMORY_DEBUG", "off"),
+		("ENABLE_DEBUG_LOG", "off"),
+		("ENABLE_CRTDBG_MEMORY", "off"),
+		("ENABLE_ALLOC_DEBUG", "off"),
+		("BUILD_SHARED_LIB", "off"),
+		("SUPPORT_CONSOLE_APP", "off"),
+		("SUPPORT_LOCALIZATIONS", onoff(is_feature("localization"))),
+	];
 	let profile = env::var("PROFILE").unwrap();
 	let opt_level = env::var("OPT_LEVEL")
 		.ok()
@@ -101,7 +101,7 @@ fn main() {
 	}
 
 	let mut cmake = cmake::Config::new("vendor/tidy.5.8.0");
-	for (k, v) in CMAKE_DEFINES {
+	for (k, v) in cmake_defines {
 		cmake.define(k, v);
 	}
 
