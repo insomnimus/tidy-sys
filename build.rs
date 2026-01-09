@@ -101,7 +101,7 @@ fn main() {
 	}
 
 	let mut cmake = cmake::Config::new("vendor/tidy.5.8.0");
-	// cmake.configure_arg()
+	cmake.configure_arg("-DCMAKE_POLICY_VERSION_MINIMUM=3.5");
 	for (k, v) in cmake_defines {
 		cmake.define(k, v);
 	}
