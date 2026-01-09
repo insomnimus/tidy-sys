@@ -101,6 +101,7 @@ fn main() {
 	}
 
 	let mut cmake = cmake::Config::new("vendor/tidy.5.8.0");
+	// cmake.configure_arg()
 	for (k, v) in cmake_defines {
 		cmake.define(k, v);
 	}
