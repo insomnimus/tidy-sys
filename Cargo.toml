@@ -20,5 +20,5 @@ localization = []
 [dependencies]
 
 [build-dependencies]
-bindgen = "0.70.1"
+bindgen = "0.72.1"
 cmake = "0.1.57"
